@@ -10,26 +10,29 @@ void moveStraight(int leftMotorSpeed, int rightMotorSpeed)
     
     if(leftMotorSpeed>=0){
         // Left motor front
-    analogWrite(LEFT_MOTOR_PIN_1, leftMotorSpeed);
+    digitalWrite(LEFT_MOTOR_PIN_1, HIGH);
     digitalWrite(LEFT_MOTOR_PIN_2, LOW);
     }
     else{
         // Left motor back
-        analogWrite(LEFT_MOTOR_PIN_2, abs(leftMotorSpeed));
+        digitalWrite(LEFT_MOTOR_PIN_2, HIGH);
         digitalWrite(LEFT_MOTOR_PIN_1, LOW);
     }
     // Right motor front
     if(rightMotorSpeed>=0)
     {
         // Right motor front
-        analogWrite(RIGHT_MOTOR_PIN_1, rightMotorSpeed);
+        digitalWrite(RIGHT_MOTOR_PIN_1, HIGH);
         digitalWrite(RIGHT_MOTOR_PIN_2, LOW);
     }
     else
     {
-        analogWrite(RIGHT_MOTOR_PIN_2, abs(rightMotorSpeed));
+        digitalWrite(RIGHT_MOTOR_PIN_2, HIGH);
         digitalWrite(RIGHT_MOTOR_PIN_1, LOW);
     }
+
+    analogWrite(LEFT_MOTOR_PWM_PIN, abs(leftMotorSpeed));
+    analogWrite(RIGHT_MOTOR_PWM_PIN, abs(rightMotorSpeed));
 }
 
 void turnCCW(int leftMotorSpeed, int rightMotorSpeed)
@@ -49,12 +52,16 @@ Serial.println(rightMotorSpeed);
 
     // Left motor back
     digitalWrite(LEFT_MOTOR_PIN_1, LOW);
-    analogWrite(LEFT_MOTOR_PIN_2, leftMotorSpeed);
+    digitalWrite(LEFT_MOTOR_PIN_2, HIGH);
 
     // Right motor front
-    analogWrite(RIGHT_MOTOR_PIN_1, rightMotorSpeed);
+    digitalWrite(RIGHT_MOTOR_PIN_1, HIGH);
     digitalWrite(RIGHT_MOTOR_PIN_2, LOW);
+
+    analogWrite(LEFT_MOTOR_PWM_PIN, abs(leftMotorSpeed));
+    analogWrite(RIGHT_MOTOR_PWM_PIN, abs(rightMotorSpeed));
 }
+
 
 void turnCW(int leftMotorSpeed, int rightMotorSpeed)
 {
@@ -72,24 +79,28 @@ void turnCW(int leftMotorSpeed, int rightMotorSpeed)
     Serial.println(rightMotorSpeed);
 
     // Left motor front
-    analogWrite(LEFT_MOTOR_PIN_1, leftMotorSpeed);
+    digitalWrite(LEFT_MOTOR_PIN_1, HIGH);
     digitalWrite(LEFT_MOTOR_PIN_2, LOW);
 
     // Right motor back
     digitalWrite(RIGHT_MOTOR_PIN_1, LOW);
-    analogWrite(RIGHT_MOTOR_PIN_2, rightMotorSpeed);
+    digitalWrite(RIGHT_MOTOR_PIN_2, HIGH);
+
+    analogWrite(LEFT_MOTOR_PWM_PIN, abs(leftMotorSpeed));
+    analogWrite(RIGHT_MOTOR_PWM_PIN, abs(rightMotorSpeed));
+
 }
 
 void shortBrake(int durationMillis)
 {
-    analogWrite(LEFT_MOTOR_PIN_1, 0 );
-    analogWrite(RIGHT_MOTOR_PIN_1, 0);
+    digitalWrite(LEFT_MOTOR_PIN_1, 0 );
+    digitalWrite(RIGHT_MOTOR_PIN_1, 0);
 
     // Left motor back
-    analogWrite(LEFT_MOTOR_PIN_2, 255);
+    digitalWrite(LEFT_MOTOR_PIN_2, HIGH);
 
     // Right motor back
-    analogWrite(RIGHT_MOTOR_PIN_2, 255);
+    digitalWrite(RIGHT_MOTOR_PIN_2, HIGH);
 
     delay(durationMillis);
 }
@@ -98,11 +109,14 @@ void stop()
 {
     // Left motor stop
     digitalWrite(LEFT_MOTOR_PIN_1, LOW);
-    analogWrite(LEFT_MOTOR_PIN_2, 5);
+    digitalWrite(LEFT_MOTOR_PIN_2, HIGH);
 
     // Right motor stop
     digitalWrite(RIGHT_MOTOR_PIN_1, LOW);
-    analogWrite(RIGHT_MOTOR_PIN_2, 5);
+    digitalWrite(RIGHT_MOTOR_PIN_2, HIGH);
+
+    analogWrite(LEFT_MOTOR_PWM_PIN, 5);
+    analogWrite(RIGHT_MOTOR_PWM_PIN, 5);
 }
 
 

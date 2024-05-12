@@ -3,10 +3,15 @@
 #ifndef MOTORCONTROL_H
 #define MOTORCONTROL_H
 
-#define LEFT_MOTOR_PIN_1 5
-#define LEFT_MOTOR_PIN_2 6
-#define RIGHT_MOTOR_PIN_1 9
-#define RIGHT_MOTOR_PIN_2 10
+#define STBY 6
+
+#define LEFT_MOTOR_PIN_1 8
+#define LEFT_MOTOR_PIN_2 7
+#define RIGHT_MOTOR_PIN_1 4
+#define RIGHT_MOTOR_PIN_2 5
+
+#define LEFT_MOTOR_PWM_PIN 9
+#define RIGHT_MOTOR_PWM_PIN 11
 
 void moveStraight(int leftMotorSpeed, int rightMotorSpeed);
 void turnCCW(int leftMotorSpeed, int rightMotorSpeed);

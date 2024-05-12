@@ -265,7 +265,7 @@ void controlMotors()
 		uint8_t sensorReadings = getSensorReadings();
 		while (isOutOfLine(sensorReadings))
 		{
-			turnCW(baseMotorSpeed - leftMotorOffset, baseMotorSpeed - rightMotorOffset);
+			turnCCW(baseMotorSpeed - leftMotorOffset, baseMotorSpeed - rightMotorOffset);
 			sensorReadings = getSensorReadings();
 		}
 #if GAPS_ENABLED == 1
@@ -280,7 +280,7 @@ void controlMotors()
 		uint8_t sensorReadings = getSensorReadings();
 		while (isOutOfLine(sensorReadings))
 		{
-			turnCCW(baseMotorSpeed - leftMotorOffset, baseMotorSpeed - rightMotorOffset);
+            turnCW(baseMotorSpeed - leftMotorOffset, baseMotorSpeed - rightMotorOffset);
 			sensorReadings = getSensorReadings();
 		}
 #if GAPS_ENABLED == 1
@@ -289,8 +289,8 @@ void controlMotors()
 	}
 	else
 	{
-		int leftMotorSpeed = baseMotorSpeed + PID_value - leftMotorOffset;
-		int rightMotorSpeed = baseMotorSpeed - PID_value - rightMotorOffset;
+		int rightMotorSpeed = baseMotorSpeed + PID_value - leftMotorOffset;
+		int leftMotorSpeed = baseMotorSpeed - PID_value - rightMotorOffset;
   Serial.print(leftMotorSpeed);
   Serial.print(" --- ");
   Serial.println(rightMotorSpeed);
@@ -321,11 +321,13 @@ Serial.begin(9600);
 
   pinMode(LED, OUTPUT);
 
-  pinMode(4, HIGH);
+  pinMode(STBY, OUTPUT);
+  digitalWrite(STBY, HIGH);
 
 }
 
 void loop() {
+    
   // put your main code here, to run repeatedly:
   readSensors();
 	calculatePID();
