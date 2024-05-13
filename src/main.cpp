@@ -15,6 +15,8 @@
 
 #define LED 3
 
+String dataBL = "";
+
 int Kp = DEFAULT_KP;
 int Ki = DEFAULT_KI;
 int Kd = DEFAULT_KD;
@@ -291,9 +293,9 @@ void controlMotors()
 	{
 		int rightMotorSpeed = baseMotorSpeed + PID_value - leftMotorOffset;
 		int leftMotorSpeed = baseMotorSpeed - PID_value - rightMotorOffset;
-  Serial.print(leftMotorSpeed);
-  Serial.print(" --- ");
-  Serial.println(rightMotorSpeed);
+  // Serial.print(leftMotorSpeed);
+  // Serial.print(" --- ");
+  // Serial.println(rightMotorSpeed);
 		moveStraight(leftMotorSpeed, rightMotorSpeed);
 
 		if (D != 0)
@@ -322,13 +324,63 @@ Serial.begin(9600);
   pinMode(LED, OUTPUT);
 
   pinMode(STBY, OUTPUT);
-  digitalWrite(STBY, HIGH);
+  digitalWrite(STBY, LOW);
+
+  Serial.begin(9600);
 
 }
 
 void loop() {
     
-  // put your main code here, to run repeatedly:
+  // Establishing seral connection to HC-05:
+  if(Serial.available()>0)
+  {
+    dataBL = Serial.readString();
+
+     if(dataBL == "stand")
+    {
+      digitalWrite(STBY, LOW); //Standby Mode
+      Serial.println("Mode: " +dataBL+"     "+ "\n");
+    }
+
+    else if(dataBL == "run")
+    {
+      digitalWrite(STBY, HIGH); //Power Mode
+      Serial.println("Mode: " +dataBL+"     "+ "\n");
+    }
+      
+
+    else if (dataBL.charAt(0) == 'p') //KP tuning
+    {
+      dataBL.remove(0, 1);
+      Kp = dataBL.toInt();
+      Serial.println("Proportion: "+dataBL+"    "+Kp+ "\n");
+    }
+    else if (dataBL.charAt(0) == 'i') //KI Tuning
+    {
+      dataBL.remove(0, 1);
+      Ki = dataBL.toInt();
+    }
+    else if (dataBL.charAt(0) == 'd') //KD Tuning
+    {
+      dataBL.remove(0, 1);
+      Kd = dataBL.toInt();
+      Serial.println("Derivative: "+dataBL+"    "+Kd+ "\n");
+    }
+    else if(dataBL.charAt(0) == 'm')
+    {
+      while (dataBL.charAt(0) == 'm') //Base Motor Speed
+    {
+        dataBL.remove(0, 1);
+        baseMotorSpeed = dataBL.toInt();
+        Serial.println("Motor Speed: "+dataBL+"    "+baseMotorSpeed+ "\n");
+      
+    }
+    }
+    
+  }
+ 
+
   readSensors();
 	calculatePID();
 	controlMotors();

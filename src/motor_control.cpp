@@ -109,14 +109,14 @@ void stop()
 {
     // Left motor stop
     digitalWrite(LEFT_MOTOR_PIN_1, LOW);
-    digitalWrite(LEFT_MOTOR_PIN_2, HIGH);
+    digitalWrite(LEFT_MOTOR_PIN_2, LOW);
 
     // Right motor stop
     digitalWrite(RIGHT_MOTOR_PIN_1, LOW);
-    digitalWrite(RIGHT_MOTOR_PIN_2, HIGH);
+    digitalWrite(RIGHT_MOTOR_PIN_2, LOW);
 
-    analogWrite(LEFT_MOTOR_PWM_PIN, 5);
-    analogWrite(RIGHT_MOTOR_PWM_PIN, 5);
+    analogWrite(LEFT_MOTOR_PWM_PIN, 0);
+    analogWrite(RIGHT_MOTOR_PWM_PIN, 0);
 }
 
 
