@@ -93,14 +93,21 @@ void turnCW(int leftMotorSpeed, int rightMotorSpeed)
 
 void shortBrake(int durationMillis)
 {
-    digitalWrite(LEFT_MOTOR_PIN_1, 0 );
-    digitalWrite(RIGHT_MOTOR_PIN_1, 0);
+    //PWMM==0
+    digitalWrite(LEFT_MOTOR_PWM_PIN, 0);
+    digitalWrite(RIGHT_MOTOR_PWM_PIN, 0);
+
+    //Front motors
+    digitalWrite(LEFT_MOTOR_PIN_1, HIGH);
+    digitalWrite(RIGHT_MOTOR_PIN_1, HIGH);
+    digitalWrite(LEFT_MOTOR_PIN_2, HIGH);
+    digitalWrite(RIGHT_MOTOR_PIN_2, HIGH);
 
     // Left motor back
-    digitalWrite(LEFT_MOTOR_PIN_2, HIGH);
+    //digitalWrite(LEFT_MOTOR_PIN_2, HIGH);
 
     // Right motor back
-    digitalWrite(RIGHT_MOTOR_PIN_2, HIGH);
+    //digitalWrite(RIGHT_MOTOR_PIN_2, HIGH);
 
     delay(durationMillis);
 }
