@@ -200,7 +200,7 @@ void readSensors()
 {
 
 	uint8_t sensorData = getSensorReadings();
-	error = getCalculatedError(0);
+	error = getCalculatedError(1);
 
 	// left most sensor value
 	int s1 = (sensorData & (1 << 7)) >> 7;
@@ -229,7 +229,11 @@ void readSensors()
 		{
 			shortBrake(100);
 			stop();
-			delay(10000);
+			#if  BLUETOOTH_TUNING_ENABLED == 1
+				digitalWrite(STBY, LOW);
+			#else 
+				delay(3000);
+			#endif
 		}
 	}
 
@@ -247,7 +251,7 @@ void readSensors()
 void calculatePID()
 {
 	P = error;
-	I = (error = 0) ? 0 : I + error;
+	I = (error == 0) ? 0 : I + error;
 	I = constrain(I, -200, 200);
 	D = error - previousError;
   if((error-previousError)!=0)
@@ -340,6 +344,8 @@ void loop() {
 
       if(dataBL == "stand")
       {
+	shortBrake(200);
+	stop();
         digitalWrite(STBY, LOW); //Standby Mode
         Serial.println("Mode: " +dataBL+"     "+ "\n");
       }
