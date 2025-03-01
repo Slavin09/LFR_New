@@ -254,8 +254,8 @@ void readSensors()
 		{
 			shortBrake(100);
 			stop();
-      digitalWrite(STBY, LOW);
-			//delay(10000);
+      //digitalWrite(STBY, LOW);
+			delay(10000);
 		}
 	}
 
@@ -448,11 +448,11 @@ void loop() {
   //   {
   //     dataBL = Serial.readString();
 
-      if(dataBL == "stand")
-      {
-        digitalWrite(STBY, LOW); //Standby Mode
-        Serial.println("Mode: " +dataBL+"     "+ "\n");
-      }
+      // if(dataBL == "stand")
+      // {
+      //   digitalWrite(STBY, LOW); //Standby Mode
+      //   Serial.println("Mode: " +dataBL+"     "+ "\n");
+      // }
 
   //     else if(dataBL == "tune")
   //     {
