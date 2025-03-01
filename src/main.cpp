@@ -8,6 +8,9 @@
 #define SENSOR_COUNT 8
 #define POSITIONAL_WEIGHT_W 100 
 
+#define CMD_STANDBY    's'  // More efficient than "stand"
+#define CMD_RUN        'r'  // More efficient than "run"
+
 #define ALL_SENSORS_DETECT_LINE_COLOR(R) (R == 0b11111111)
 #define ALL_SENSORS_OUT_OF_LINE_COLOR(R) (R == 0b00000000)
 
@@ -276,7 +279,7 @@ void calculatePID()
   if((error-previousError)!=0)
     delay(5);
 	PID_value = (Kp * P) + (Ki * I) + (Kd * D);
-	PID_value = constrain(PID_value, -150, 150);
+	PID_value = constrain(PID_value, -200, 200);
 	previousError = error;
 }
 
