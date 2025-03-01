@@ -2,6 +2,25 @@
 #include "motor_control.h"
 #include "Config.h"
 
+void motorInit()
+{
+     // Motor control pins
+  pinMode(LEFT_MOTOR_PIN_1, OUTPUT);
+  pinMode(LEFT_MOTOR_PIN_2, OUTPUT);
+  pinMode(RIGHT_MOTOR_PIN_1, OUTPUT);
+  pinMode(RIGHT_MOTOR_PIN_2, OUTPUT);
+  
+  // Motor driver standby pin
+  pinMode(STBY, OUTPUT);
+  digitalWrite(STBY, LOW);  // Enable motor driver by default
+  
+  // Initialize motors to stop
+  digitalWrite(LEFT_MOTOR_PIN_1,LOW);
+  digitalWrite(LEFT_MOTOR_PIN_2,LOW);
+  digitalWrite(RIGHT_MOTOR_PIN_1,LOW);
+  digitalWrite(RIGHT_MOTOR_PIN_2,LOW);
+}
+
 void moveStraight(int leftMotorSpeed, int rightMotorSpeed)
 {
     leftMotorSpeed = constrain(leftMotorSpeed, -255, 255);

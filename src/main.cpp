@@ -152,6 +152,28 @@ int getCalculatedError(int fallbackError)
     return error;
 }
 
+int midOfLine(uint8_t sensorReadings)
+{
+  uint8_t options[] = {
+    
+    0b00110000,
+    0b00111000,
+    0b00011000,
+    0b11001111,
+    0b11000111,
+    0b11100111};
+
+int n = sizeof(options) / sizeof(uint8_t);
+
+for (int i = 0; i < n; i++)
+{
+    if (sensorReadings == options[i])
+        return 0;
+}
+
+return 1;
+}
+
 int isOutOfLine(uint8_t sensorReadings)
 {
     uint8_t options[] = {
@@ -229,7 +251,8 @@ void readSensors()
 		{
 			shortBrake(100);
 			stop();
-			delay(10000);
+      digitalWrite(STBY, LOW);
+			//delay(10000);
 		}
 	}
 
@@ -257,12 +280,49 @@ void calculatePID()
 	previousError = error;
 }
 
+void tuneSensors()
+{
+  Serial.println("Error: " + error );
+  if (error == OUT_OF_LINE_ERROR_VALUE)
+	{
+// #if BRAKING_ENABLED == 1
+// 		shortBrake(BRAKE_DURATION_MILLIS);
+// #endif
+		uint8_t sensorReadings = getSensorReadings();
+		while (midOfLine(sensorReadings))
+		{
+			turnCCW(baseMotorSpeed - leftMotorOffset, baseMotorSpeed - rightMotorOffset);
+			sensorReadings = getSensorReadings();
+		}
+#if GAPS_ENABLED == 1
+		error_dir = 0;
+#endif
+	}
+	else if (error == (-1 * OUT_OF_LINE_ERROR_VALUE))
+	{
+// #if BRAKING_ENABLED == 1
+// 		shortBrake(BRAKE_DURATION_MILLIS);
+// #endif
+		uint8_t sensorReadings = getSensorReadings();
+		while (midOfLine(sensorReadings))
+		{
+      turnCW(baseMotorSpeed - leftMotorOffset, baseMotorSpeed - rightMotorOffset);
+			sensorReadings = getSensorReadings();
+		}
+#if GAPS_ENABLED == 1
+		error_dir = 0;
+#endif
+}
+}
+
 void controlMotors()
 {
+  Serial.println("Error: " + error );
 	if (error == OUT_OF_LINE_ERROR_VALUE)
 	{
 #if BRAKING_ENABLED == 1
 		shortBrake(BRAKE_DURATION_MILLIS);
+    Serial.println("Brakes applied");
 #endif
 		uint8_t sensorReadings = getSensorReadings();
 		while (isOutOfLine(sensorReadings))
@@ -278,6 +338,7 @@ void controlMotors()
 	{
 #if BRAKING_ENABLED == 1
 		shortBrake(BRAKE_DURATION_MILLIS);
+    Serial.println("Brakes applied");
 #endif
 		uint8_t sensorReadings = getSensorReadings();
 		while (isOutOfLine(sensorReadings))
@@ -296,11 +357,61 @@ void controlMotors()
   // Serial.print(leftMotorSpeed);
   // Serial.print(" --- ");
   // Serial.println(rightMotorSpeed);
-		moveStraight(leftMotorSpeed, rightMotorSpeed);
 
+    moveStraight(leftMotorSpeed, rightMotorSpeed);
+ 
 		if (D != 0)
 			delay(loopDelay);
 	}
+}
+
+void parseBluetoothCommand() {
+  #if BLUETOOTH_TUNING_ENABLED
+  static char buffer[32];
+  static size_t idx = 0;
+  
+  while(Serial.available() > 0) {
+    char c = Serial.read();
+    
+    // End of command
+    if(c == '\n' || c == '\r') {
+      buffer[idx] = '\0';
+      
+      // Debugging line (optional)
+      // Serial.print("Received: "); Serial.println(buffer);
+      
+      // Handle commands
+      if(strcmp(buffer, "stand") == 0 || buffer[0] == 's') {
+        shortBrake(200);
+        stop();
+        digitalWrite(STBY, LOW);
+        Serial.println("STANDBY");
+      }
+      else if(strcmp(buffer, "run") == 0 || buffer[0] == 'r') {
+        digitalWrite(STBY, HIGH);
+        Serial.println("RUNNING");
+      }
+      else if(buffer[0] == 'p' || buffer[0] == 'i' || buffer[0] == 'd' || buffer[0] == 'm') {
+        int value = atoi(buffer + 1); // Convert rest of string to int
+        
+        if(value != 0 || buffer[1] == '0') { // Handle 0 values properly
+          switch(buffer[0]) {
+            case 'p': Kp = value; break;
+            case 'i': Ki = value; break;
+            case 'd': Kd = value; break;
+            case 'm': baseMotorSpeed = constrain(value, 0, 255); break;
+          }
+          Serial.print(buffer[0]); Serial.print(":"); Serial.println(value);
+        }
+      }
+      
+      idx = 0;
+    } 
+    else if(idx < sizeof(buffer)-1) {
+      buffer[idx++] = c;
+    }
+  }
+  #endif
 }
 
 void setup() {
@@ -316,73 +427,75 @@ Serial.begin(9600);
   pinMode(S6, INPUT);
   pinMode(S7, INPUT);
 
-  pinMode(LEFT_MOTOR_PIN_1, OUTPUT);
-  pinMode(LEFT_MOTOR_PIN_2, OUTPUT);
-  pinMode(RIGHT_MOTOR_PIN_1, OUTPUT);
-  pinMode(RIGHT_MOTOR_PIN_2, OUTPUT);
-
   pinMode(LED, OUTPUT);
 
+  motorInit();
   pinMode(STBY, OUTPUT);
   digitalWrite(STBY, LOW);
-
-  Serial.begin(9600);
 
 }
 
 void loop() {
     
   // Establishing seral connection to HC-05:
-  #if BLUETOOTH_TUNING_ENABLED == 1
-    if(Serial.available()>0)
-    {
-      dataBL = Serial.readString();
+  // #if BLUETOOTH_TUNING_ENABLED == 1
+  //   if(Serial.available()>0)
+  //   {
+  //     dataBL = Serial.readString();
 
-      if(dataBL == "stand")
-      {
-        digitalWrite(STBY, LOW); //Standby Mode
-        Serial.println("Mode: " +dataBL+"     "+ "\n");
-      }
+  //     if(dataBL == "stand")
+  //     {
+  //       shortBrake(100);
+  //       stop();
+  //       digitalWrite(STBY, LOW); //Standby Mode
+  //       Serial.println("Mode: " +dataBL+"     "+ "\n");
+  //     }
 
-      else if(dataBL == "run")
-      {
-        digitalWrite(STBY, HIGH); //Power Mode
-        Serial.println("Mode: " +dataBL+"     "+ "\n");
-      }
+  //     else if(dataBL == "tune")
+  //     {
+  //       tuneSensors();
+  //       Serial.println("Mode: " +dataBL+"     "+ "\n");
+  //     }
+
+  //     else if(dataBL == "run")
+  //     {
+  //       digitalWrite(STBY, HIGH); //Power Mode
+  //       Serial.println("Mode: " +dataBL+"     "+ "\n");
+  //     }
         
 
-      else if (dataBL.charAt(0) == 'p') //KP tuning
-      {
-        dataBL.remove(0, 1);
-        Kp = dataBL.toInt();
-        Serial.println("Proportion: "+dataBL+"    "+Kp+ "\n");
-      }
-      else if (dataBL.charAt(0) == 'i') //KI Tuning
-      {
-        dataBL.remove(0, 1);
-        Ki = dataBL.toInt();
-      }
-      else if (dataBL.charAt(0) == 'd') //KD Tuning
-      {
-        dataBL.remove(0, 1);
-        Kd = dataBL.toInt();
-        Serial.println("Derivative: "+dataBL+"    "+Kd+ "\n");
-      }
-      else if(dataBL.charAt(0) == 'm')
-      {
-        while (dataBL.charAt(0) == 'm') //Base Motor Speed
-      {
-          dataBL.remove(0, 1);
-          baseMotorSpeed = dataBL.toInt();
-          Serial.println("Motor Speed: "+dataBL+"    "+baseMotorSpeed+ "\n");
+  //     else if (dataBL.charAt(0) == 'p') //KP tuning
+  //     {
+  //       dataBL.remove(0, 1);
+  //       Kp = dataBL.toInt();
+  //       Serial.println("Proportion: "+dataBL+"    "+Kp+ "\n");
+  //     }
+  //     else if (dataBL.charAt(0) == 'i') //KI Tuning
+  //     {
+  //       dataBL.remove(0, 1);
+  //       Ki = dataBL.toInt();
+  //     }
+  //     else if (dataBL.charAt(0) == 'd') //KD Tuning
+  //     {
+  //       dataBL.remove(0, 1);
+  //       Kd = dataBL.toInt();
+  //       Serial.println("Derivative: "+dataBL+"    "+Kd+ "\n");
+  //     }
+  //     else if(dataBL.charAt(0) == 'm')
+  //     {
+  //       while (dataBL.charAt(0) == 'm') //Base Motor Speed
+  //     {
+  //         dataBL.remove(0, 1);
+  //         baseMotorSpeed = dataBL.toInt();
+  //         Serial.println("Motor Speed: "+dataBL+"    "+baseMotorSpeed+ "\n");
         
-      }
-      }
+  //     }
+  //     }
       
-    }
-  #endif
+  //   }
+  // #endif
  
-
+  parseBluetoothCommand();
   readSensors();
 	calculatePID();
 	controlMotors();

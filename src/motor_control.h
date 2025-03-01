@@ -13,6 +13,7 @@
 #define LEFT_MOTOR_PWM_PIN 9
 #define RIGHT_MOTOR_PWM_PIN 11
 
+void motorInit();
 void moveStraight(int leftMotorSpeed, int rightMotorSpeed);
 void turnCCW(int leftMotorSpeed, int rightMotorSpeed);
 void turnCW(int leftMotorSpeed, int rightMotorSpeed);
