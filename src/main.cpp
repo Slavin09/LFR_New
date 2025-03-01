@@ -329,9 +329,6 @@ Serial.begin(9600);
 
   pinMode(STBY, OUTPUT);
   digitalWrite(STBY, LOW);
-
-  Serial.begin(9600);
-
 }
 
 void loop() {
