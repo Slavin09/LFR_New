@@ -225,7 +225,7 @@ void readSensors()
 {
 
 	uint8_t sensorData = getSensorReadings();
-	error = getCalculatedError(0);
+	error = getCalculatedError(1);
 
 	// left most sensor value
 	int s1 = (sensorData & (1 << 7)) >> 7;
@@ -273,7 +273,7 @@ void readSensors()
 void calculatePID()
 {
 	P = error;
-	I = (error = 0) ? 0 : I + error;
+	I = (error == 0) ? 0 : I + error;
 	I = constrain(I, -200, 200);
 	D = error - previousError;
   if((error-previousError)!=0)
@@ -436,6 +436,8 @@ Serial.begin(9600);
   pinMode(STBY, OUTPUT);
   digitalWrite(STBY, LOW);
 
+  Serial.begin(9600);
+
 }
 
 void loop() {
@@ -446,13 +448,11 @@ void loop() {
   //   {
   //     dataBL = Serial.readString();
 
-  //     if(dataBL == "stand")
-  //     {
-  //       shortBrake(100);
-  //       stop();
-  //       digitalWrite(STBY, LOW); //Standby Mode
-  //       Serial.println("Mode: " +dataBL+"     "+ "\n");
-  //     }
+      if(dataBL == "stand")
+      {
+        digitalWrite(STBY, LOW); //Standby Mode
+        Serial.println("Mode: " +dataBL+"     "+ "\n");
+      }
 
   //     else if(dataBL == "tune")
   //     {
